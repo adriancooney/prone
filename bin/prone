@@ -11,6 +11,16 @@ if(partition > -1) {
     process.argv = process.argv.slice(0, partition);
 }
 
+program.on("--help", function(){
+    console.log([
+        "  Examples:",
+        "",
+        "    $ prone tcp://google.com:80 -- echo \"Google is up!\"",
+        "    $ prone redis rabbitmq && echo 'Hosts are up'",
+        ""
+    ].join("\n"));
+});
+
 program
     .version(pkg.version)
     .usage("<target ...>")
