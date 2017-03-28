@@ -1,7 +1,15 @@
 #!/usr/bin/env babel-node --
 import program from "commander";
+import { exec } from "child_process"
 import pkg from "../package.json";
 import check from "../src";
+
+let command;
+const partition = process.argv.indexOf("--");
+if(partition > -1) {
+    command = process.argv.slice(partition + 1);
+    process.argv = process.argv.slice(0, partition);
+}
 
 program
     .version(pkg.version)
@@ -14,7 +22,19 @@ if(!program.args.length) {
     fail("Please specify some targets.");
 }
 
-Promise.all(program.args.map(check)).catch(fail);
+Promise.all(program.args.map(check)).then(() => {
+    if(command && command.length) {
+        const cmd = exec(command.join(" "), {
+            cwd: process.cwd,
+            shell: process.env.SHELL,
+            env: process.env
+        });
+
+        cmd.stdout.pipe(process.stdout);
+        cmd.stderr.pipe(process.stderr);
+        cmd.on("exit", process.exit);
+    }
+}).catch(fail);
 
 function fail(message, exitCode = 1) {
     if(message instanceof Error) {
