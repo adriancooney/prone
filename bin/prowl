@@ -1,0 +1,22 @@
+#!/usr/bin/env babel-node --
+
+import program from "commander";
+import pkg from "../package.json";
+import check from "../src";
+
+program
+    .version(pkg.version)
+    .usage("<target ...>")
+    .option("-t, --timeout <timeout>", "timeout after ms", parseInt)
+    .parse(process.argv);
+
+if(!program.args.length) {
+    fail("Please specify some targets.");
+}
+
+Promise.all(program.args.map(check)).catch(fail);
+
+function fail(message, exitCode = 1) {
+    console.error(message);
+    process.exit(exitCode);
+}

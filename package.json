@@ -1,0 +1,103 @@
+{
+  "name": "prowl",
+  "version": "0.1.0",
+  "description": "Await services to come up.",
+  "main": "src/index.js",
+  "bin": {
+    "prowl": "build/bin/prowl"
+  },
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "test": "mocha --require babel-polyfill --compilers js:babel-register",
+    "lint": "eslint src",
+    "build:bin:prowl": "babel -d build bin/prowl*",
+    "build:bin:rename": "renamer --find '.js' --replace '' build/bin/*",
+    "build:bin:fix-binary": "replace '#!/usr/bin/env babel-node --' '#!/usr/bin/env node' build/bin -r",
+    "build:bin:chmod": "chmod +x build/bin/*",
+    "build:bin": "npm run build:bin:prowl && npm run build:bin:rename && npm run build:bin:fix-binary && npm run build:bin:chmod"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adriancooney/await-service.git"
+  },
+  "keywords": [
+    "await",
+    "service",
+    "is-up"
+  ],
+  "author": "Adrian Cooney <cooney.adrian@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/adriancooney/await-service/issues"
+  },
+  "homepage": "https://github.com/adriancooney/await-service#readme",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "commander": "^2.9.0"
+  },
+  "babel": {
+    "presets": [
+      "latest",
+      "stage-0"
+    ],
+    "plugins": [
+      [
+        "transform-builtin-extend",
+        {
+          "globals": [
+            "Error"
+          ]
+        }
+      ]
+    ]
+  },
+  "eslintConfig": {
+    "parser": "babel-eslint",
+    "rules": {
+      "indent": [
+        2,
+        4
+      ],
+      "quotes": [
+        2,
+        "double"
+      ],
+      "linebreak-style": [
+        2,
+        "unix"
+      ],
+      "semi": [
+        2,
+        "always"
+      ]
+    },
+    "parserOptions": {
+      "ecmaVersion": 8,
+      "sourceType": "module",
+      "ecmaFeatures": {
+        "experimentalObjectRestSpread": true,
+        "modules": true
+      }
+    },
+    "env": {
+      "es6": true,
+      "browser": true
+    },
+    "extends": [
+      "eslint:recommended"
+    ]
+  },
+  "devDependencies": {
+    "babel-eslint": "^7.2.1",
+    "babel-plugin-transform-builtin-extend": "^1.1.2",
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-latest": "^6.24.0",
+    "babel-preset-stage-0": "^6.22.0",
+    "babel-register": "^6.24.0",
+    "eslint": "^3.18.0",
+    "renamer": "^0.6.1",
+    "replace": "^0.3.0"
+  }
+}
