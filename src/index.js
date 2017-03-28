@@ -19,7 +19,11 @@ export default async function check(input) {
             options = input;
         }
     } else if(typeof input === "object") {
-        let { healthcheck, options, timeout, maxAttempts, delay } = input;
+        healthcheck = input.healthcheck;
+        options = input.options;
+        timeout = input.timeout;
+        maxAttempts = input.maxAttempts;
+        delay = input.delay;
     }
 
     if(!healthcheck) {
@@ -34,7 +38,7 @@ export default async function check(input) {
     let attempts = [];
     let timedOut = false;
 
-    while(true) {
+    while(true) { // eslint-disable-line no-constant-condition
         const elapsedTime = new Date() - startTime;
 
         try {
@@ -62,7 +66,7 @@ export default async function check(input) {
         }
 
         if(timedOut || timeout && elapsedTime >= timeout) {
-            throw Object.assign(new Error(`Healthcheck timed out.`), { attempts });
+            throw Object.assign(new Error("Healthcheck timed out."), { attempts });
         }
     }
 

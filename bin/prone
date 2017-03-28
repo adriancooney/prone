@@ -1,5 +1,4 @@
 #!/usr/bin/env babel-node --
-
 import program from "commander";
 import pkg from "../package.json";
 import check from "../src";
@@ -8,6 +7,7 @@ program
     .version(pkg.version)
     .usage("<target ...>")
     .option("-t, --timeout <timeout>", "timeout after ms", parseInt)
+    .option("-d, --debug", "output debug logs")
     .parse(process.argv);
 
 if(!program.args.length) {
@@ -17,6 +17,10 @@ if(!program.args.length) {
 Promise.all(program.args.map(check)).catch(fail);
 
 function fail(message, exitCode = 1) {
+    if(message instanceof Error) {
+        message = message.stack;
+    }
+
     console.error(message);
     process.exit(exitCode);
 }
