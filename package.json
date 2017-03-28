@@ -9,8 +9,11 @@
   "bin": {
     "prone": "./build/bin/prone"
   },
+  "directories": {
+    "bin": "build/bin"
+  },
   "files": [
-    "build"
+    "build", "src"
   ],
   "scripts": {
     "test": "npm run lint && mocha --require babel-polyfill --compilers js:babel-register",
@@ -20,9 +23,9 @@
     "build:bin:prone": "babel -d build bin/prone*",
     "build:bin:rename": "renamer --find '.js' --replace '' build/bin/*",
     "build:bin:fix-binary": "replace '#!/usr/bin/env babel-node --' '#!/usr/bin/env node -r babel-polyfill --' build/bin -r",
+    "build:bin:fix-pkg-req": "replace 'package.json' '../package.json' build/ -r",
     "build:bin:chmod": "chmod +x build/bin/*",
-    "build:bin:copy-json": "cp *.json build/",
-    "build:bin": "npm run build:bin:prone && npm run build:bin:rename && npm run build:bin:fix-binary && npm run build:bin:chmod && npm run build:bin:copy-json",
+    "build:bin": "npm run build:bin:prone && npm run build:bin:rename && npm run build:bin:fix-binary && npm run build:bin:fix-pkg-req && npm run build:bin:chmod",
     "build": "npm run clean && npm run lint && npm run build:src && npm run build:bin"
   },
   "repository": {
