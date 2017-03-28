@@ -1,6 +1,6 @@
 {
   "name": "prone",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Await services to come up.",
   "main": "build/src/index.js",
   "engines": {
@@ -13,7 +13,8 @@
     "bin": "build/bin"
   },
   "files": [
-    "build", "src"
+    "build",
+    "src"
   ],
   "scripts": {
     "test": "npm run lint && mocha --require babel-polyfill --compilers js:babel-register",
