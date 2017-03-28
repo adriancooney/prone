@@ -7,7 +7,7 @@
     "node": ">= 4"
   },
   "bin": {
-    "prone": "build/bin/prone"
+    "prone": "./build/bin/prone"
   },
   "files": [
     "build"
