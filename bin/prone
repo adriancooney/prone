@@ -4,11 +4,11 @@ import { exec } from "child_process"
 import pkg from "../package.json";
 import check from "../src";
 
-let command;
-const partition = process.argv.indexOf("--");
+let command, argv = process.argv.slice();
+const partition = argv.indexOf("--");
 if(partition > -1) {
-    command = process.argv.slice(partition + 1);
-    process.argv = process.argv.slice(0, partition);
+    command = argv.slice(partition + 1);
+    argv = argv.slice(0, partition);
 }
 
 program.on("--help", function(){
@@ -26,7 +26,7 @@ program
     .usage("<target ...>")
     .option("-t, --timeout <timeout>", "timeout after ms", parseInt)
     .option("-d, --debug", "output debug logs")
-    .parse(process.argv);
+    .parse(argv);
 
 if(!program.args.length) {
     fail("Please specify some targets.");
