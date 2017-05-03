@@ -25,16 +25,23 @@ Example in our package.json:
 
 ## CLI
 ```sh
-$ prone --help
 
   Usage: prone <target ...>
 
   Options:
 
-    -h, --help               output usage information
-    -V, --version            output the version number
-    -t, --timeout <timeout>  timeout after ms
-    -d, --debug              output debug logs
+    -h, --help                     output usage information
+    -V, --version                  output the version number
+    -t, --timeout <timeout>        timeout after ms (default: 30000ms)
+    -m, --max-attempts <attempts>  maximum amount of attempts before failing
+    --delay <delay>                the delay between healthchecks (default: 1000ms)
+    -d, --debug                    output debug logs
+
+  Examples:
+
+    $ prone tcp://google.com:80 -- echo "Google is up!"
+    $ prone redis rabbitmq && echo 'Hosts are up'
+
 ```
 
 Available targets:
