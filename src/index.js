@@ -2,36 +2,33 @@ import util from "util";
 import Promise from "bluebird";
 import HealthcheckError from "./lib/HealthcheckError";
 import * as healthchecks from "./healthchecks";
+import omit from "lodash.omit";
 
 const DEFAULT_TIMEOUT = 30000;
 const DEFAULT_DELAY = 1000;
 
-export default async function check(input) {
-    let healthcheck, options, timeout, maxAttempts, delay;
+export default async function check(target, options) {
+    let healthcheck = getTargetHealthcheck(target);
 
-    if(typeof input === "string" && !input.includes(":") && healthchecks[input]) {
-        healthcheck = healthchecks[input];
-    } else if(typeof input === "string" && input.includes(":")) {
-        const [ protocol ] = input.split(":");
+    if(typeof target === "object") {
+        target = target.target;
+        healthcheck = getTargetHealthcheck(target);
+        options = omit(target, "target");
+    }
 
-        if(protocol && healthchecks[protocol]) {
-            healthcheck = healthchecks[protocol];
-            options = input;
-        }
-    } else if(typeof input === "object") {
-        healthcheck = input.healthcheck;
-        options = input.options;
-        timeout = input.timeout;
-        maxAttempts = input.maxAttempts;
-        delay = input.delay;
+    if(!target.includes(":")) {
+        // Not a protocol, just the name of the healthcheck
+        target = undefined;
     }
 
     if(!healthcheck) {
-        throw new Error(`Unknown healthcheck: ${util.inspect(input)}`);
+        throw new Error(`Unknown healthcheck: ${util.inspect(target)}`);
     }
 
-    if(!timeout && !maxAttempts) {
-        timeout = DEFAULT_TIMEOUT;
+    if(!options.timeout && !options.maxAttempts) {
+        options = Object.assign(options, {
+            timeout: DEFAULT_TIMEOUT
+        });
     }
 
     const startTime = new Date();
@@ -43,29 +40,38 @@ export default async function check(input) {
 
         try {
             if(attempts.length > 0) {
-                await Promise.delay(delay || DEFAULT_DELAY);
+                await Promise.delay(options.delay || DEFAULT_DELAY);
             }
 
-            // There's a reason why this is all on one line: getting weird unhandled rejection errors
-            // in console if we don't keep it on a single line.
-            await Promise.try(healthcheck.bind(null, options)).timeout(timeout ? timeout - elapsedTime : null);
+            if(options.debug) {
+                console.log(`starting healthcheck: ${healthcheck.name}${target ? `(${target})` : ""}`);
+            }
+
+            await (
+                Promise.try(healthcheck.bind(null, target, options))
+                    .timeout(options.timeout ? options.timeout - elapsedTime : null)
+            )
 
             break;
         } catch(err) {
             if(err instanceof Promise.TimeoutError) {
                 timedOut = true;
             } else if(err instanceof HealthcheckError) {
+                if(options.debug) {
+                    console.log(`healthcheck failed: ${err.message}`);
+                }
+
                 attempts.push(err);
             } else {
                 throw err;
             }
         }
 
-        if(maxAttempts && attempts.length >= maxAttempts) {
+        if(options.maxAttempts && attempts.length >= options.maxAttempts) {
             throw Object.assign(new Error(`Max attempts (${maxAttempts}) reached.`), { attempts });
         }
 
-        if(timedOut || timeout && elapsedTime >= timeout) {
+        if(timedOut || options.timeout && elapsedTime >= options.timeout) {
             throw Object.assign(new Error("Healthcheck timed out."), { attempts });
         }
     }
@@ -74,4 +80,16 @@ export default async function check(input) {
         time: new Date() - startTime,
         attempts
     };
+}
+
+function getTargetHealthcheck(target) {
+    if(typeof target === "string" && !target.includes(":") && healthchecks[target]) {
+        return healthchecks[target];
+    } else if(typeof target === "string" && target.includes(":")) {
+        const [ protocol ] = target.split(":");
+
+        if(protocol && healthchecks[protocol]) {
+            return healthchecks[protocol];
+        }
+    }
 }

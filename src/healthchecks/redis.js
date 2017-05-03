@@ -1,10 +1,10 @@
 import Promise from "bluebird";
 import HealthcheckError from "../lib/HealthcheckError";
 
-const REDIS_DEPENDENCY = "redis";
+const DEPENDENCY = "redis";
 
 export default function redis(target) {
-    return Promise.try(() => System.import(REDIS_DEPENDENCY)).then(redis => {
+    return Promise.try(() => System.import(DEPENDENCY)).then(redis => {
         const client = redis.createClient(target);
 
         return new Promise((resolve, reject) => {
@@ -15,7 +15,7 @@ export default function redis(target) {
         });
     }).catch(err => {
         if(err.code === "ECONNREFUSED") {
-            throw new HealthcheckError("redis", target, HealthcheckError.CONNECTION_FAILUE, "Unable to connect to Redis server", err);
+            throw new HealthcheckError("redis", target, HealthcheckError.CONNECTION_FAILURE, "Unable to connect to Redis server", err);
         }
 
         throw err;

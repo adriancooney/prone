@@ -32,8 +32,17 @@ if(!program.args.length) {
     fail("Please specify some targets.");
 }
 
-Promise.all(program.args.map(check)).then(() => {
+log("starting healthchecks:")
+log(" * " + program.args.join("\n * "));
+Promise.all(program.args.map(target => {
+    return check(target, {
+        timeout: program.timeout,
+        debug: program.debug
+    });
+})).then(() => {
+    log("healthchecks completed successfully");
     if(command && command.length) {
+        log("executing: $ " + command.join(" "));
         const cmd = exec(command.join(" "), {
             cwd: process.cwd,
             shell: process.env.SHELL,
@@ -53,4 +62,10 @@ function fail(message, exitCode = 1) {
 
     console.error(message);
     process.exit(exitCode);
+}
+
+function log() {
+    if(program.debug) {
+        console.log.apply(console, arguments);
+    }
 }
