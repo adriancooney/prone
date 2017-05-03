@@ -4,8 +4,8 @@ import HealthcheckError from "./lib/HealthcheckError";
 import * as healthchecks from "./healthchecks";
 import omit from "lodash.omit";
 
-const DEFAULT_TIMEOUT = 30000;
-const DEFAULT_DELAY = 1000;
+export const DEFAULT_TIMEOUT = 30000;
+export const DEFAULT_DELAY = 1000;
 
 export default async function check(target, options) {
     let healthcheck = getTargetHealthcheck(target);
@@ -31,6 +31,10 @@ export default async function check(target, options) {
         });
     }
 
+    options = Object.assign({
+        delay: DEFAULT_DELAY
+    }, options);
+
     const startTime = new Date();
     let attempts = [];
     let timedOut = false;
@@ -39,6 +43,10 @@ export default async function check(target, options) {
         const elapsedTime = new Date() - startTime;
 
         try {
+            if(options.timeout && (elapsedTime + (attempts.length ? options.delay : 0)) > options.timeout) {
+                throw new Promise.TimeoutError();
+            }
+
             if(attempts.length > 0) {
                 await Promise.delay(options.delay || DEFAULT_DELAY);
             }
@@ -47,14 +55,21 @@ export default async function check(target, options) {
                 console.log(`starting healthcheck: ${healthcheck.name}${target ? `(${target})` : ""}`);
             }
 
-            await (
-                Promise.try(healthcheck.bind(null, target, options))
-                    .timeout(options.timeout ? options.timeout - elapsedTime : null)
-            )
+            let attempt = Promise.try(healthcheck.bind(null, target, options));
+
+            if(options.timeout) {
+                attempt = attempt.timeout(options.timeout - elapsedTime);
+            }
+
+            await attempt;
 
             break;
         } catch(err) {
             if(err instanceof Promise.TimeoutError) {
+                if(options.debug) {
+                    console.log("healthchecks timed out");
+                }
+
                 timedOut = true;
             } else if(err instanceof HealthcheckError) {
                 if(options.debug) {
@@ -68,7 +83,7 @@ export default async function check(target, options) {
         }
 
         if(options.maxAttempts && attempts.length >= options.maxAttempts) {
-            throw Object.assign(new Error(`Max attempts (${maxAttempts}) reached.`), { attempts });
+            throw Object.assign(new Error(`Max attempts (${options.maxAttempts}) reached.`), { attempts });
         }
 
         if(timedOut || options.timeout && elapsedTime >= options.timeout) {

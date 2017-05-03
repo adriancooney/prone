@@ -1,5 +1,4 @@
 import amqp, { DEPENDENCY as AMQP_DEPENDENCY } from "./amqp";
-import HealthcheckError from "../lib/HealthcheckError";
 
 export const DEPENDENCY = AMQP_DEPENDENCY;
 export const DEFAULT_TARGET = "rabbitmq://localhost:5672";

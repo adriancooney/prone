@@ -2,7 +2,7 @@
 import program from "commander";
 import { exec } from "child_process"
 import pkg from "../package.json";
-import check from "../src";
+import check, { DEFAULT_DELAY, DEFAULT_TIMEOUT } from "../src";
 
 let command, argv = process.argv.slice();
 const partition = argv.indexOf("--");
@@ -24,7 +24,9 @@ program.on("--help", function(){
 program
     .version(pkg.version)
     .usage("<target ...>")
-    .option("-t, --timeout <timeout>", "timeout after ms", parseInt)
+    .option("-t, --timeout <timeout>", `timeout after ms (default: ${DEFAULT_TIMEOUT}ms)`, parseInt)
+    .option("-m, --max-attempts <attempts>", "maximum amount of attempts before failing", parseInt)
+    .option("--delay <delay>", `the delay between healthchecks (default: ${DEFAULT_DELAY}ms)`, parseInt)
     .option("-d, --debug", "output debug logs")
     .parse(argv);
 
@@ -37,10 +39,12 @@ log(" * " + program.args.join("\n * "));
 Promise.all(program.args.map(target => {
     return check(target, {
         timeout: program.timeout,
-        debug: program.debug
+        maxAttempts: program.maxAttempts,
+        debug: program.debug,
+        delay: program.delay
     });
-})).then(() => {
-    log("healthchecks completed successfully");
+})).then(({ time, attempts }) => {
+    log("healthchecks completed successfully in " + time);
     if(command && command.length) {
         log("executing: $ " + command.join(" "));
         const cmd = exec(command.join(" "), {
@@ -57,10 +61,10 @@ Promise.all(program.args.map(target => {
 
 function fail(message, exitCode = 1) {
     if(message instanceof Error) {
-        message = message.stack;
+        message = message.message;
     }
 
-    console.error(message);
+    console.error("Error: " + message);
     process.exit(exitCode);
 }
 
