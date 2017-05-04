@@ -53,7 +53,7 @@ Available targets:
 | `rabbitmq` | Extends `amqp` to connection to RabbitMQ | `amqplib` | `rabbitmq[://username:password@host:port]` | `rabbitmq://localhost:5672` | `rabbitmq` |
 | `redis` | Connects to a Redis service with `redis.createClient` | `redis` | `redis[://username:password@host:port/vhost?query]` | `redis://localhost:6389` | |`redis` |
 | `mysql` | Connects to a MySQL service with `mysql.createConnection` | `mysql` | `mysql://username:password@host:port/database` | *none* | `mysql://root:root@localhost:3306/mysql` |`mysql` |
-| `elasticsearch` | Connects to Elasticsearch | `elasticsearch` | `elasticsearch://host:port` | *none* | `elasticsearch://localhost:9200` | `elasticsearch` |
+| `elasticsearch` | Connects to Elasticsearch | `elasticsearch` | `elasticsearch://host:port` | `elasticsearch://localhost:9200` | `elasticsearch` |
 
 *Note: The npm Dependency with `npm install` is required to be installed for the healthcheck to work.*
 
