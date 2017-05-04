@@ -3,9 +3,9 @@ import HealthcheckError from "../lib/HealthcheckError";
 
 const DEPENDENCY = "amqplib";
 
-export default function amqp(target) {
+export default function amqp(target, options, logger) {
     return Promise.try(() => System.import(DEPENDENCY)).then(amqplib => {
-        return amqplib.connect(target);
+        return amqplib.connect(`amqp://${target}`);
     }).catch(err => {
         if(err.code === "ECONNREFUSED") {
             throw new HealthcheckError("amqp", target, HealthcheckError.CONNECTION_FAILURE, "Unable to connect to AMQP broker", err);

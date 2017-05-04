@@ -1,5 +1,6 @@
 #!/usr/bin/env babel-node --
 import program from "commander";
+import winston from "winston";
 import { exec } from "child_process"
 import pkg from "../package.json";
 import check, { DEFAULT_DELAY, DEFAULT_TIMEOUT } from "../src";
@@ -12,7 +13,7 @@ if(partition > -1) {
 }
 
 program.on("--help", function(){
-    console.log([
+    winston.info([
         "  Examples:",
         "",
         "    $ prone tcp://google.com:80 -- echo \"Google is up!\"",
@@ -30,12 +31,16 @@ program
     .option("-d, --debug", "output debug logs")
     .parse(argv);
 
+if(program.debug) {
+    winston.level = "debug";
+}
+
 if(!program.args.length) {
     fail("Please specify some targets.");
 }
 
-log("starting healthchecks:")
-log(" * " + program.args.join("\n * "));
+winston.info("starting healthchecks:")
+winston.info(" * " + program.args.join("\n * "));
 Promise.all(program.args.map(target => {
     return check(target, {
         timeout: program.timeout,
@@ -43,10 +48,10 @@ Promise.all(program.args.map(target => {
         debug: program.debug,
         delay: program.delay
     });
-})).then(({ time, attempts }) => {
-    log("healthchecks completed successfully in " + time);
+})).then(() => {
+    winston.info("healthchecks completed successfully");
     if(command && command.length) {
-        log("executing: $ " + command.join(" "));
+        winston.info("executing: $ " + command.join(" "));
         const cmd = exec(command.join(" "), {
             cwd: process.cwd,
             shell: process.env.SHELL,
@@ -64,12 +69,6 @@ function fail(message, exitCode = 1) {
         message = message.message;
     }
 
-    console.error("Error: " + message);
+    winston.error("Error: " + message);
     process.exit(exitCode);
-}
-
-function log() {
-    if(program.debug) {
-        console.log.apply(console, arguments);
-    }
 }

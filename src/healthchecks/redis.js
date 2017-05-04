@@ -3,9 +3,9 @@ import HealthcheckError from "../lib/HealthcheckError";
 
 const DEPENDENCY = "redis";
 
-export default function redis(target) {
+export default function redis(target, options, logger) {
     return Promise.try(() => System.import(DEPENDENCY)).then(redis => {
-        const client = redis.createClient(target);
+        const client = redis.createClient(`redis://${target}`);
 
         return new Promise((resolve, reject) => {
             client.on("connect", resolve);

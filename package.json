@@ -50,7 +50,8 @@
     "bluebird": "^3.5.0",
     "commander": "^2.9.0",
     "lodash.omit": "^4.5.0",
-    "rimraf": "^2.6.1"
+    "rimraf": "^2.6.1",
+    "winston": "^2.3.1"
   },
   "babel": {
     "presets": [
