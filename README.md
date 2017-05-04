@@ -51,8 +51,9 @@ Available targets:
 | `tcp` | Considers service healthy if a TCP connection is made to the target | *none* | `tcp://host:port` | *none* | `tcp://google.com:80` |
 | `amqp` | Use `amqplib.connect` to establish a connection to an AMQP broker | `amqplib` | [`amqp://username:password@host:port/vhost?query`](http://www.rabbitmq.com/uri-spec.html) | *none* | `amqp://rabbitmq:5672` |
 | `rabbitmq` | Extends `amqp` to connection to RabbitMQ | `amqplib` | `rabbitmq[://username:password@host:port]` | `rabbitmq://localhost:5672` | `rabbitmq` |
-| `redis` | Connects to a Redis service with `redis.createClient` | `redis` | `redis[://username:password@host:port/vhost?query]` | `redis://localhost6389` | |`redis` |
+| `redis` | Connects to a Redis service with `redis.createClient` | `redis` | `redis[://username:password@host:port/vhost?query]` | `redis://localhost:6389` | |`redis` |
 | `mysql` | Connects to a MySQL service with `mysql.createConnection` | `mysql` | `mysql://username:password@host:port/database` | *none* | `mysql://root:root@localhost:3306/mysql` |`mysql` |
+| `elasticsearch` | Connects to Elasticsearch | `elasticsearch` | `elasticsearch://host:port` | *none* | `elasticsearch://localhost:9200` | `elasticsearch` |
 
 *Note: The npm Dependency with `npm install` is required to be installed for the healthcheck to work.*
 
