@@ -3,7 +3,7 @@ import url from "url";
 import Promise from "bluebird";
 import HealthcheckError from "../lib/HealthcheckError";
 
-export default function tcp(target, options, logger) {
+export default function tcp(target, options) {
     if(!target) {
         throw new Error("No target for TCP to connect to. Unable to complete healthcheck.");
     }

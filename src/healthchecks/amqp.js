@@ -3,7 +3,7 @@ import HealthcheckError from "../lib/HealthcheckError";
 
 const DEPENDENCY = "amqplib";
 
-export default function amqp(target, options, logger) {
+export default function amqp(target) {
     return Promise.try(() => System.import(DEPENDENCY)).then(amqplib => {
         return amqplib.connect(`amqp://${target}`);
     }).catch(err => {

@@ -3,7 +3,7 @@ import HealthcheckError from "../lib/HealthcheckError";
 
 export const DEPENDENCY = "mysql";
 
-export default function mysql(target, options, logger) {
+export default function mysql(target) {
     return Promise.try(() => System.import(DEPENDENCY)).then(mysql => {
         const connection = mysql.createConnection(`mysql://${target}`);
 

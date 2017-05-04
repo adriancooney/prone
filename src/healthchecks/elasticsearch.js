@@ -3,7 +3,7 @@ import HealthcheckError from "../lib/HealthcheckError";
 
 export const DEPENDENCY = "elasticsearch";
 
-export default function elasticsearch(target, options, logger) {
+export default function elasticsearch(target) {
     return Promise.try(() => System.import(DEPENDENCY)).then(elasticsearch => {
         const client = new elasticsearch.Client({
             host: target,
