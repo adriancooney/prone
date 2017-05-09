@@ -47,6 +47,8 @@ Promise.all(program.args.map(target => {
         maxAttempts: program.maxAttempts,
         debug: program.debug,
         delay: program.delay
+    }).catch(err => {
+        throw Object.assign(err, { target });
     });
 })).then(() => {
     winston.info("healthchecks completed successfully");
@@ -62,7 +64,13 @@ Promise.all(program.args.map(target => {
         cmd.stderr.pipe(process.stderr);
         cmd.on("exit", process.exit);
     }
-}).catch(fail);
+}).catch(err => {
+    if(err.target) {
+        return fail(`[${err.target}] ${err.message}`);
+    }
+
+    return fail(err);
+});
 
 function fail(message, exitCode = 1) {
     if(message instanceof Error) {
